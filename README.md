@@ -84,7 +84,7 @@ graph TD
 - **推理模型流式输出**：兼容 deepseek、qwen 等多种推理模型，`reasoning_content` / `thinking` 字段统一处理
 - **跨平台桌面**：Linux (Waybar 图标自安装)、Windows (任务栏图标)、macOS (Dock 图标) 三端 UI 与打包
 - **安全边界**：Agent 被限定在 IT / 网络安全领域，非技术话题主动拒绝；命令输出和上下文按 token 截断，避免推理循环失控
-- **Skills 专家指令集**：可独立启停的专家级 Prompt 包——Nmap 扫描、Web 漏洞、AD 域渗透、密码爆破、Metasploit、渗透报告撰写等内置 6 个专家模式，可一键导入/导出/自定义
+- **Skills 专家指令集**：可独立启停的专家级 Prompt 包——仓库 `Skills/` 目录自带 SQL 注入、RustScan 2 个实战级 skill，可一键导入/导出/自定义
 
 ***
 
@@ -127,7 +127,15 @@ podman build -t gycore:latest -f gycontaniner/podman/Containerfile .
 
 > 容器基于 Kali Rolling，内置 `kali-linux-labs` + `kali-linux-default` 两个元包，覆盖 nmap、metasploit、sqlmap、nikto、nuclei、ffuf 等全套渗透工具。
 
-### 4. 开始第一个任务
+### 4. 导入 Skills（可选但推荐）
+
+仓库的 [`Skills/`](./Skills) 目录有 2 个实战级 skill，直接导入就能用：
+
+1. 主界面 Rail 栏点 **Skills** 图标 → 进入管理面板
+2. 点 **导入 SKILL.md** → 选仓库下 `Skills/` 目录里的 `.md` 文件（可多选）
+3. 导入后默认启用，任务启动时会自动注入到 Agent 上下文
+
+### 5. 开始第一个任务
 
 在主界面左侧点击 **＋** 新建 Agent，选择刚才构建的容器，在右侧输入你的目标描述：
 
@@ -174,16 +182,14 @@ Agent 会自主规划步骤、调用工具、观察结果、循环推进。你�
 
 Skills 是 GYcore 的核心差异化能力——每个 skill 是一段经过实战打磨的 Prompt，定义某个渗透场景下的完整工作方法。
 
-### 内置 Skills
+仓库的 [`Skills/`](./Skills) 目录自带 **2 个实战级示例 skill**，每个都是完整的「从装到用」工作流，可直接复制到 GYcore 的 Skill 导入面板使用：
 
-| Skill         | 适用场景                                             |
-| ------------- | ------------------------------------------------ |
-| Nmap 扫描专家     | 端口发现、服务识别、版本探测、脚本扫描、OS 指纹                        |
-| Web 漏洞利用      | SQL 注入、XSS、文件上传、命令执行、逻辑漏洞、OWASP Top 10           |
-| AD 域渗透        | Kerberoasting、AS-REP、DCSync、Golden Ticket、横向移动   |
-|  密码爆破         | Hydra / Medusa / John the Ripper / Hashcat 场景化参数 |
-| Metasploit 精通 | payload 选择、exploit 匹配、post-exploitation、后渗透持久化   |
-| 渗透报告撰写        | 结构化 Findings → 风险评级 → 修复建议的报告模板                  |
+| Skill 文件 | 适用场景 |
+| --- | --- |
+| [`sql_injection.md`](./Skills/sql_injection.md) | SQL 注入全流程：手工注入、时间盲注、错误注入、sqlmap 自动化、WAF 绕过 |
+| [`rustscan.md`](./Skills/rustscan.md) | RustScan 从安装到实战：多平台安装脚本、快速端口发现、Nmap 服务版本联动、UDP 补扫、批量网段扫描、漏洞枚举衔接 |
+
+> 这两个是**可直接使用的真实 skill**，不是占位符——在 GYcore 里点「导入 SKILL.md」选它们就能立刻跑。想写自己的？看下面「创建自定义 Skill」。
 
 ### 管理面板
 
