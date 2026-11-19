@@ -1,7 +1,9 @@
 # GYcore
 
 <div align="center">
-  <img src="./appicon.png" width="96" alt="GYcore Logo" />
+
+![GYcore Logo](appicon.png)
+
 </div>
 
 <div align="center">
