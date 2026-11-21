@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![GYcore Logo](appicon.png)
+<img src="appicon.png" width="160" alt="GYcore Logo">
 
 </div>
 
@@ -135,7 +135,44 @@ podman build -t gycore:latest -f gycontaniner/podman/Containerfile .
 2. 点 **导入 SKILL.md** → 选仓库下 `Skills/` 目录里的 `.md` 文件（可多选）
 3. 导入后默认启用，任务启动时会自动注入到 Agent 上下文
 
-### 5. 开始第一个任务
+### 5. USB 直通（可选）
+
+渗透场景常需要操作宿主机上的 USB 硬件——Android 设备（ADB/MTP）、USB Zigbee 适配器、RTL-SDR 无线电接收器、硬件密钥、U 盘取证等。GYcore 支持把宿主机 USB 总线直通进工作容器，让容器内的 Agent 和工具能直接访问这些设备。
+
+#### 操作步骤
+
+1. 主界面 Rail 栏点 **⚙ 设置** → 进入 **容器设置** 区域
+2. 点 **扫描宿主机设备**，GYcore 读取 `/sys/bus/usb/devices` 枚举所有已连接的 USB 设备
+3. 勾选要直通的设备（如 OnePlus 手机、RTL-SDR 等），也可以手动在高级输入框里填 `/dev/bus/usb/XXX/YYY`
+4. 点 **保存** → 回到主界面，右键容器 → **重建容器**
+
+重建后容器启动时会追加 `-v /dev/bus/usb:/dev/bus/usb:rw` 把整个 USB 总线挂载进去，容器内执行 `ls /dev/bus/usb/`、`adb devices`、`rtl_test` 等就能看到直通的硬件。
+
+#### 实现原理
+
+| 平台 | 机制 | 说明 |
+| --- | --- | --- |
+| **Linux** | 原生 bind mount | `-v /dev/bus/usb:/dev/bus/usb:rw` 直接把宿主机 USB 设备节点暴露到容器，零额外依赖 |
+| **Windows** | usbipd-win | 需先安装 [dorssel/usbipd-win](https://github.com/dorssel/usbipd-win)，设备通过 USB/IP 协议转发到 WSL2 内的容器 |
+| **macOS** | Docker Desktop USB/IP | Docker Desktop 内置 USB/IP 网关，宿主机 USB 设备经虚拟化层转发到容器 |
+
+#### 独占警告
+
+**USB 直通是独占的**——一旦容器挂载了 `/dev/bus/usb`，宿主机本身将无法再访问这些 USB 设备。表现为：
+
+- Android 手机：宿主机的 `adb devices` 看不到设备，MTP 文件传输断开
+- RTL-SDR：宿主机的 SDR#、GQRX 无法打开设备
+- U 盘：宿主机文件管理器里自动卸载
+
+这是 Linux USB 子系统的标准行为，不是 bug。恢复方法：
+
+1. 在容器设置里取消勾选这些 USB 设备 → 保存
+2. **重建容器**（必须重建，已运行的容器配置不会热更新）
+3. 容器重建后不再占用 USB 总线，宿主机立刻恢复访问
+
+如果只是临时用一下，也可以直接停止容器（右键 → 停止），宿主机同样能立即拿回 USB 设备。
+
+### 6. 开始第一个任务
 
 在主界面左侧点击 **＋** 新建 Agent，选择刚才构建的容器，在右侧输入你的目标描述：
 
