@@ -13,7 +13,7 @@
 ![Wails](https://img.shields.io/badge/Wails-v3-11C1C7?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-容器运行-2496ED?logo=docker&logoColor=white)
-![Platform](https://img.shields.io/badge/平台-Linux%20%7C%20Windows%20%7C%20macOS-555)
+![Platform](https://img.shields.io/badge/平台-Linux%20%7C%20Windows-555)
 ![License](https://img.shields.io/badge/License-Apache%202.0-D22122?logo=apache&logoColor=white)
 ![AI Agent](https://img.shields.io/badge/AI-Agent_渗透%20-ff6b35?style=flat-square)
 
@@ -21,7 +21,7 @@
 
 > GYscan 团队的核心 AI 自动化渗透测试产品
 
-GYcore 是一个跨平台（Linux / Windows / macOS）桌面应用，让 AI Agent 在容器里自主完成渗透测试。你只需要描述目标，剩下的由 Agent 去跑。
+GYcore 是一个跨平台（Linux / Windows）桌面应用，让 AI Agent 在容器里自主完成渗透测试。你只需要描述目标，剩下的由 Agent 去跑。
 
 ***
 
@@ -82,7 +82,7 @@ graph TD
 - **容器原生终端**：基于 PTY 的 xterm.js 终端会话，支持本地 shell 和容器 shell 双模式；Agent 执行的每一条命令都在独立容器中，互不污染
 - **容器生命周期管理**：Docker / Podman 双后端，镜像下拉、容器启停、capability 追加（`NET_RAW` / `NET_ADMIN`）、命名卷持久化
 - **推理模型流式输出**：兼容 deepseek、qwen 等多种推理模型，`reasoning_content` / `thinking` 字段统一处理
-- **跨平台桌面**：Linux (Waybar 图标自安装)、Windows (任务栏图标)、macOS (Dock 图标) 三端 UI 与打包
+- **跨平台桌面**：Linux (Waybar 图标自安装)、Windows (任务栏图标) 双端 UI 与打包
 - **安全边界**：Agent 被限定在 IT / 网络安全领域，非技术话题主动拒绝；命令输出和上下文按 token 截断，避免推理循环失控
 - **Skills 专家指令集**：可独立启停的专家级 Prompt 包——仓库 `Skills/` 目录自带 SQL 注入、RustScan 2 个实战级 skill，可一键导入/导出/自定义
 
@@ -92,14 +92,15 @@ graph TD
 
 ### 1. 下载 & 安装
 
-从 [GitHub Releases](https://github.com/xiguayiqiu/GYcore/releases) 下载对应平台的安装包：
+从 [GitHub Releases](https://github.com/xiguayiqiu/GYcore/releases) 下载对应平台的压缩包，解压后直接运行：
 
-| 平台                   | 包类型              | 安装方式                                                       |
-| -------------------- | ---------------- | ---------------------------------------------------------- |
-| **Linux (deb/rpm)**  | `.deb` / `.rpm`  | `sudo dpkg -i GYcore_*.deb` / `sudo rpm -ivh GYcore-*.rpm` |
-| **Linux (AppImage)** | `.AppImage`      | 加执行权限后直接运行                                                 |
-| **Windows**          | `.msix` / `.exe` | 双击安装                                                       |
-| **macOS**            | `.dmg`           | 拖入 Applications 目录                                         |
+| 平台 | 压缩包 | 说明 |
+| --- | --- | --- |
+| **Linux amd64** | `GYcore-linux-amd64.tar.xz` | 解压后二进制加执行权限直接运行：`chmod +x GYcore-linux-amd64 && ./GYcore-linux-amd64` |
+| **Windows amd64** | `GYcore-windows-amd64.tar.xz` | 解压后双击 `GYcore-windows-amd64.exe` |
+| **Windows arm64** | `GYcore-windows-arm64.tar.xz` | 解压后双击 `GYcore-windows-arm64.exe` |
+
+> 压缩包内同时包含 `README.md`、`Developer.md`、`Skills/` 示例指令集、`gycontaniner/` 工作容器 Dockerfile 等完整配套文件。
 
 ### 2. 配置模型
 
@@ -154,7 +155,6 @@ podman build -t gycore:latest -f gycontaniner/podman/Containerfile .
 | --- | --- | --- |
 | **Linux** | 原生 bind mount | `-v /dev/bus/usb:/dev/bus/usb:rw` 直接把宿主机 USB 设备节点暴露到容器，零额外依赖 |
 | **Windows** | usbipd-win | 需先安装 [dorssel/usbipd-win](https://github.com/dorssel/usbipd-win)，设备通过 USB/IP 协议转发到 WSL2 内的容器 |
-| **macOS** | Docker Desktop USB/IP | Docker Desktop 内置 USB/IP 网关，宿主机 USB 设备经虚拟化层转发到容器 |
 
 #### 独占警告
 
